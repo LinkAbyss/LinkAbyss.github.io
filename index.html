@@ -39,8 +39,8 @@
 			fill: '#ffffff'
 		};
 		var GLOBALS = {
-			initialBlockSpeed: 200, // 初始速度值
-			blockSpeed: 200,
+			initialBlockSpeed: 250, // 初始速度值
+			blockSpeed: 250,
 		};
 
 		var time_start_count = 0;
@@ -74,6 +74,7 @@
 				game.load.image('block','assets/Robot.png');//障碍物
 				game.load.spritesheet('player',"assets/Cutth.png",32,40);//每隔32/40切割精灵
 				game.load.spritesheet('wu',"assets/wu.png",123.5,100);
+				this.load.audio('click', "assets/clickSound.mp3");//点击音效
 				game.load.onFileComplete.add(function(progress){
 					progressText.text=progress+'%';
 				});
@@ -236,6 +237,7 @@
 			var gameBackground;
 
 			this.create=function(){
+				clickSound = this.sound.add('click');//音效
 				topScore = localStorage.getItem("topScore")==null?0:localStorage.getItem("topScore");
 				game.physics.startSystem(Phaser.Physics.ARCADE);						//开启物理引擎
 				time_start_count = game.time.totalElapsedSeconds().toFixed(3);			//游戏之前的时间统计
@@ -245,7 +247,8 @@
 				area.input.boundsRect = new Phaser.Rectangle(0, 0, area.width * area.scale.x, area.height * area.scale.y);
 				area.events.onInputDown.add(function(){
 					if (player1.body.touching.down) {
-						player1.body.velocity.y = -850;//跳跃速度
+						player1.body.velocity.y = -875;//跳跃速度
+						clickSound.play();
 					}
 					console.log(GLOBALS.blockSpeed);
 				});
@@ -299,13 +302,6 @@
 					game.state.start("gameover");
 				});
 				player1.animations.play('move');
-
-				//实时显示游戏运行时间
-				// timer = game.time.totalElapsedSeconds().toFixed(3) - time_start_count;	//计算游戏运行时间
-				// var textTimer = game.add.text(0,0,timer+"\"");
-				// textTimer.scale.setTo(windowSize,windowSize);
-				// textTimer.font = 'pixel';
-				// textTimer.x = game.width - textTimer.width;
 
 				textTimer.text = "";
 				timer = game.time.totalElapsedSeconds().toFixed(3) - time_start_count;
