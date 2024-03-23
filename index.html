@@ -39,8 +39,8 @@
 			fill: '#ffffff'
 		};
 		var GLOBALS = {
-			initialBlockSpeed: 150, // 初始速度值
-			blockSpeed: 150,
+			initialBlockSpeed: 200, // 初始速度值
+			blockSpeed: 200,
 		};
 
 		var time_start_count = 0;
@@ -91,6 +91,7 @@
 				var background = game.add.image(0,0,"background");
 				background.scale.setTo(windowSize, windowSize); 
 				var title = game.add.image(0,0,"title");
+				title.scale.setTo(1.5, 1.5); 
 
 				title.x = game.world.centerX - title.width/2;
 
@@ -104,7 +105,7 @@
 				var btnStart = game.add.image(0,0,"button");
 				btnStart.scale.setTo(windowSize,windowSize);
 				btnStart.x = game.world.centerX - btnStart.width/2;
-				btnStart.y = title.height * 2.5;
+				btnStart.y = title.height * 2;
 
 				if (document.fonts.check('16px "pixel"')) { // 检查字体是否已经可用
 					// 创建并显示包含自定义字体的文本
@@ -137,6 +138,7 @@
 					var help = game.add.image(0,0,"help");
 					help.scale.setTo(windowSize,windowSize);
 					var title = game.add.image(0,0,"title");
+					title.scale.setTo(1.5, 1.5); 
 					title.x = game.world.centerX - title.width/2;
 					var l1 = game.add.sprite(0,0,"line1");
 					l1.scale.setTo(windowSize,windowSize);
@@ -159,6 +161,9 @@
 						help.destroy();
 						btnBack.destroy();
 						title.destroy();
+						textBack.destroy();
+						l1.destroy();
+						l2.destroy();
 					});
 				},this);
 			};
@@ -240,7 +245,7 @@
 				area.input.boundsRect = new Phaser.Rectangle(0, 0, area.width * area.scale.x, area.height * area.scale.y);
 				area.events.onInputDown.add(function(){
 					if (player1.body.touching.down) {
-						player1.body.velocity.y = -800;//跳跃速度
+						player1.body.velocity.y = -850;//跳跃速度
 					}
 					console.log(GLOBALS.blockSpeed);
 				});
@@ -252,7 +257,10 @@
 				//实时显示游戏运行时间
 				timer = game.time.totalElapsedSeconds().toFixed(3) - time_start_count;	//计算游戏运行时间
 				textTimer = game.add.text(0,0,timer+"\"");
+				textTimer.scale.setTo(windowSize,windowSize);
+				textTimer.font = 'pixel';
 				textTimer.x = game.width - textTimer.width;
+
 
 				ground1 = game.add.sprite(0,0,"line3");//地面		
 				ground1.scale.setTo(windowSize, windowSize);				
@@ -263,11 +271,11 @@
 				player1 = game.add.sprite(-3,0,"player");
 				player1.scale.setTo(windowSize * 1.5, windowSize * 1.5);//玩家长宽均放大					
 				game.physics.arcade.enable(player1);
-				player1.body.gravity.y = 1200;//重力-越大下降速度越快
+				player1.body.gravity.y = 1500;//重力-越大下降速度越快
 				player1.animations.add('move', [0, 1, 2, 3], 10, true);//按精灵表播放动画帧，每s播放10帧，循环true
 
 				block1 = game.add.sprite(0,0,"block");
-				block1.scale.setTo(windowSize,windowSize);
+				block1.scale.setTo(windowSize*1.5,windowSize*1.5);
 				game.physics.arcade.enable(block1);
 				block1_width = block1.width;
 				block1_height = block1.height;
@@ -276,10 +284,11 @@
 				// 创建一个每5秒(5000毫秒)触发一次的速度增加函数
 				var speedIncreaseTimer = game.time.events.loop(5000, updateBlockSpeed, this);
 			};
-			//每5s障碍速度+50单位
+			//每5s障碍速度+75单位
 			function updateBlockSpeed() {
-				GLOBALS.blockSpeed += 50;
+				GLOBALS.blockSpeed += 75;
 			}
+			//实时更新
 			this.update=function(){
 				//当玩家碰到障碍物时的处理
 				game.physics.arcade.collide(player1, ground1);
@@ -290,9 +299,18 @@
 					game.state.start("gameover");
 				});
 				player1.animations.play('move');
+
+				//实时显示游戏运行时间
+				// timer = game.time.totalElapsedSeconds().toFixed(3) - time_start_count;	//计算游戏运行时间
+				// var textTimer = game.add.text(0,0,timer+"\"");
+				// textTimer.scale.setTo(windowSize,windowSize);
+				// textTimer.font = 'pixel';
+				// textTimer.x = game.width - textTimer.width;
+
 				textTimer.text = "";
 				timer = game.time.totalElapsedSeconds().toFixed(3) - time_start_count;
 				textTimer = game.add.text(0,0,timer.toFixed(3)+"\"");
+				textTimer.scale.setTo(windowSize,windowSize);
 				textTimer.font = 'pixel';
 				textTimer.x = game.width - textTimer.width;
 				//障碍物移动
