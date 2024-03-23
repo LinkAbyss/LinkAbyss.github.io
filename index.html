@@ -32,6 +32,7 @@
 	<div id="game-container"></div>
 	<script>
 	onload=function(){
+	var windowSize = 3;
 		var style = {
 			font: 'pixel', // 在@font-face中声明的字体名称
 			fontSize: '32px',
@@ -88,22 +89,27 @@
 		var welcomeState = function(game){
 			this.create=function(){
 				var background = game.add.image(0,0,"background");
-				background.scale.setTo(1.5, 1.5); 
+				background.scale.setTo(windowSize, windowSize); 
 				var title = game.add.image(0,0,"title");
 
-				title.scale.setTo(0.6);
 				title.x = game.world.centerX - title.width/2;
 
-				game.add.sprite(0,0,"line1").y = title.y + title.height;
-				game.add.sprite(0,0,"line1").y = game.world.height - title.height;
+				var l1 = game.add.sprite(0,0,"line1");//上面那条线
+				l1.y = title.y + title.height;
+				l1.scale.setTo(windowSize,windowSize);
+				var l2 = game.add.sprite(0,0,"line1");//下面那条线
+				l2.scale.setTo(windowSize,windowSize);
+				l2.y = game.world.height - title.height;
 				
 				var btnStart = game.add.image(0,0,"button");
+				btnStart.scale.setTo(windowSize,windowSize);
 				btnStart.x = game.world.centerX - btnStart.width/2;
 				btnStart.y = title.height * 2.5;
 
 				if (document.fonts.check('16px "pixel"')) { // 检查字体是否已经可用
 					// 创建并显示包含自定义字体的文本
 					var textStart = game.add.text(0,0,"开始游戏",style);
+					textStart.scale.setTo(windowSize,windowSize);
 					textStart.font = 'pixel';
 					textStart.x = btnStart.x + (btnStart.width - textStart.width)/2;
 					textStart.y = btnStart.y + (btnStart.height - textStart.height)/2;
@@ -116,9 +122,11 @@
 				}
 
 				var btnHelp = game.add.image(0,0,"button");
+				btnHelp.scale.setTo(windowSize,windowSize);
 				btnHelp.x = game.world.centerX - btnStart.width/2;
 				btnHelp.y = btnStart.y + title.height*2;
 				var textHelp = game.add.text(0,0,"游戏说明",style);
+				textHelp.scale.setTo(windowSize,windowSize);
 				textHelp.font = 'pixel';
 				textHelp.x = btnHelp.x + (btnHelp.width - textHelp.width)/2;
 				textHelp.y = btnHelp.y + (btnHelp.height - textHelp.height)/2;
@@ -127,18 +135,22 @@
 				btnHelp.inputEnabled = true;
 				btnHelp.events.onInputDown.add(function(){
 					var help = game.add.image(0,0,"help");
-					help.scale.setTo(1.5,1.5);
+					help.scale.setTo(windowSize,windowSize);
 					var title = game.add.image(0,0,"title");
-					title.scale.setTo(.6);
 					title.x = game.world.centerX - title.width/2;
-					game.add.sprite(0,0,"line1").y = title.y + title.height;
-					var l2 = game.add.sprite(0,0,"line1").y = game.world.height - title.height;
+					var l1 = game.add.sprite(0,0,"line1");
+					l1.scale.setTo(windowSize,windowSize);
+					l1.y = title.y + title.height;
+					var l2 = game.add.sprite(0,0,"line1");
+					l2.scale.setTo(windowSize,windowSize);
+					l2.y = game.world.height - title.height;
 					var btnBack = game.add.image(0,0,"button");
+					btnBack.scale.setTo(windowSize,windowSize);
 					btnBack.frame = 1;
-					btnBack.scale.setTo(.6);
 					btnBack.x = game.world.centerX - btnBack.width/2;
-					btnBack.y = l2 - btnBack.height - 10;
+					btnBack.y = l2.y - btnBack.height - 10;
 					var textBack = game.add.text(0,0,"返回",style);
+					textBack.scale.setTo(windowSize,windowSize);
 					textBack.font = 'pixel';
 					textBack.x = btnBack.x + (btnBack.width - textBack.width)/2;
 					textBack.y = btnBack.y + (btnBack.height - textBack.height)/2;
@@ -158,19 +170,26 @@
 			var topScore=0;
 			this.create=function(){
 				var background = game.add.image(0,0,"background");
-				background.scale.setTo(1.5,1.5);
+				background.scale.setTo(windowSize,windowSize);
 				var title = game.add.image(0,0,"myScore");
+				title.scale.setTo(windowSize,windowSize);
 				title.x = game.world.centerX - title.width/2;
-				game.add.sprite(0,0,"line1").y = title.y + title.height;
-				var l2 = game.add.sprite(0,0,"line1").y = game.world.height - title.height * 1.25;
+				var l1 = game.add.sprite(0,0,"line1");//上面那条线
+				l1.y = title.y + title.height;
+				l1.scale.setTo(windowSize,windowSize);
+				var l2 = game.add.sprite(0,0,"line1");//下面那条线
+				l2.scale.setTo(windowSize,windowSize);
+				l2.y = game.world.height - title.height;
+
 				
 				//返回按钮
 				var btnBack = game.add.image(0,0,"button");
 				btnBack.frame = 1;
-				btnBack.scale.setTo(.4,.5);
-				btnBack.x = game.world.centerX /1.5;
-				btnBack.y = l2 + btnBack.height /2;
+				btnBack.scale.setTo(windowSize/2,windowSize/2);
+				btnBack.x = game.world.centerX / 1.75;
+				btnBack.y = l2.y + btnBack.height / 2;
 				var textBack = game.add.text(0,0,"返回",style);
+				textBack.scale.setTo(windowSize,windowSize);
 				textBack.font = 'pixel';
 				textBack.x = btnBack.x + (btnBack.width - textBack.width)/2;
 				textBack.y = btnBack.y + (btnBack.height - textBack.height)/2;
@@ -179,15 +198,17 @@
 				var topScore = localStorage.getItem("topScore")==null?0:localStorage.getItem("topScore");
 				score = localStorage.getItem("score")==null?0:localStorage.getItem("score");
 				var textScore = game.add.text(0,0,"本局 " + score + "秒");
+				textScore.scale.setTo(windowSize,windowSize);
 				textScore.font = 'pixel';
 				textScore.fontSize = '36px';
-				textScore.x = game.world.centerX - textScore.width/2;
-				textScore.y = game.world.centerY - title.height*1.5;
+				textScore.x = game.world.centerX - textScore.width / 2;
+				textScore.y = game.world.centerY - title.height;
 				var textTopScore = game.add.text(0,0,"最佳 " + topScore + "秒");
+				textTopScore.scale.setTo(windowSize,windowSize);
 				textTopScore.font = 'pixel';
 				textTopScore.fontSize = '36px';
 				textTopScore.x = game.world.centerX - textTopScore.width/2;
-				textTopScore.y = textScore.y + title.height*1.25;
+				textTopScore.y = textScore.y + title.height;
 
 				btnBack.inputEnabled = true;
 				btnBack.events.onInputDown.addOnce(function(){
@@ -196,7 +217,7 @@
 				});
 			};
 		}
-////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////游戏界面/////////////////////////////////////
 		var gameState = function(game){
 			var textTimer;
 			var timer = 0;
@@ -214,18 +235,19 @@
 				game.physics.startSystem(Phaser.Physics.ARCADE);						//开启物理引擎
 				time_start_count = game.time.totalElapsedSeconds().toFixed(3);			//游戏之前的时间统计
 				var area = game.add.image(0,0,"area");//游戏区域
-				area.scale.setTo(1.5,3);	
+				area.scale.setTo(windowSize,windowSize*2);	
 				area.inputEnabled = true;
 				area.input.boundsRect = new Phaser.Rectangle(0, 0, area.width * area.scale.x, area.height * area.scale.y);
 				area.events.onInputDown.add(function(){
 					if (player1.body.touching.down) {
-						player1.body.velocity.y = -500;//跳跃速度
+						player1.body.velocity.y = -800;//跳跃速度
 					}
 					console.log(GLOBALS.blockSpeed);
 				});
 
 				//游戏背景
 				gameBackground = game.add.tileSprite(0, 0, game.width, game.height, 'area');
+				gameBackground.scale.setTo(windowSize,windowSize);
 
 				//实时显示游戏运行时间
 				timer = game.time.totalElapsedSeconds().toFixed(3) - time_start_count;	//计算游戏运行时间
@@ -233,19 +255,19 @@
 				textTimer.x = game.width - textTimer.width;
 
 				ground1 = game.add.sprite(0,0,"line3");//地面		
-				ground1.scale.setTo(2, 2);				
+				ground1.scale.setTo(windowSize, windowSize);				
 				game.physics.arcade.enable(ground1);
 				ground1.body.immovable = true;
 				ground1.y = game.world.height * (3 / 4) - ground1.height;
 
 				player1 = game.add.sprite(-3,0,"player");
-				player1.scale.setTo(2, 2);//玩家长宽均放大为2倍					
+				player1.scale.setTo(windowSize * 1.5, windowSize * 1.5);//玩家长宽均放大					
 				game.physics.arcade.enable(player1);
-				player1.body.gravity.y = 1000;//重力-越大下降速度越快
+				player1.body.gravity.y = 1200;//重力-越大下降速度越快
 				player1.animations.add('move', [0, 1, 2, 3], 10, true);//按精灵表播放动画帧，每s播放10帧，循环true
 
 				block1 = game.add.sprite(0,0,"block");
-				block1.scale.setTo(2,2);
+				block1.scale.setTo(windowSize,windowSize);
 				game.physics.arcade.enable(block1);
 				block1_width = block1.width;
 				block1_height = block1.height;
@@ -298,7 +320,7 @@
                 parent: gameContainer,
             };
 
-            var game = new Phaser.Game(480, 720, Phaser.CANVAS, 'game-container', null, false, false, scaleOptions);
+            var game = new Phaser.Game(960, 1440, Phaser.CANVAS, 'game-container', null, false, false, scaleOptions);
 
 
             // 添加游戏状态
