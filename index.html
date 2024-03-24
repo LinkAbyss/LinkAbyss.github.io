@@ -44,6 +44,7 @@
 		};
 
 		var time_start_count = 0;
+		var bgm;
 		var bootState = function(game){
 			this.preload=function(){
 				game.load.image('loading','assets/preloader.gif');
@@ -74,7 +75,9 @@
 				game.load.image('block','assets/Robot.png');//障碍物
 				game.load.spritesheet('player',"assets/Cutth.png",32,40);//每隔32/40切割精灵
 				game.load.spritesheet('wu',"assets/wu.png",123.5,100);
-				this.load.audio('click', "assets/clickSound.mp3");//点击音效
+				game.load.audio('click', "assets/clickSound.mp3");//点击音效
+				game.load.audio('jumpSound', "assets/jump.mp3");//跳跃音效 - by - @JDWasabi
+				game.load.audio('bgm', "assets/CyberCity.mp3");//bgm - by - @Ansimuz
 				game.load.onFileComplete.add(function(progress){
 					progressText.text=progress+'%';
 				});
@@ -170,59 +173,6 @@
 			};
 		}
 		
-//------------------------------结束界面------------------------------		
-		var gameoverState = function(game){
-			var score = 0;
-			var topScore=0;
-			this.create=function(){
-				var background = game.add.image(0,0,"background");
-				background.scale.setTo(windowSize,windowSize);
-				var title = game.add.image(0,0,"myScore");
-				title.scale.setTo(windowSize,windowSize);
-				title.x = game.world.centerX - title.width/2;
-				var l1 = game.add.sprite(0,0,"line1");//上面那条线
-				l1.y = title.y + title.height;
-				l1.scale.setTo(windowSize,windowSize);
-				var l2 = game.add.sprite(0,0,"line1");//下面那条线
-				l2.scale.setTo(windowSize,windowSize);
-				l2.y = game.world.height - title.height;
-
-				
-				//返回按钮
-				var btnBack = game.add.image(0,0,"button");
-				btnBack.frame = 1;
-				btnBack.scale.setTo(windowSize/2,windowSize/2);
-				btnBack.x = game.world.centerX / 1.75;
-				btnBack.y = l2.y + btnBack.height / 2;
-				var textBack = game.add.text(0,0,"返回",style);
-				textBack.scale.setTo(windowSize,windowSize);
-				textBack.font = 'pixel';
-				textBack.x = btnBack.x + (btnBack.width - textBack.width)/2;
-				textBack.y = btnBack.y + (btnBack.height - textBack.height)/2;
-
-				//最高得分
-				var topScore = localStorage.getItem("topScore")==null?0:localStorage.getItem("topScore");
-				score = localStorage.getItem("score")==null?0:localStorage.getItem("score");
-				var textScore = game.add.text(0,0,"本局 " + score + "秒");
-				textScore.scale.setTo(windowSize,windowSize);
-				textScore.font = 'pixel';
-				textScore.fontSize = '36px';
-				textScore.x = game.world.centerX - textScore.width / 2;
-				textScore.y = game.world.centerY - title.height;
-				var textTopScore = game.add.text(0,0,"最佳 " + topScore + "秒");
-				textTopScore.scale.setTo(windowSize,windowSize);
-				textTopScore.font = 'pixel';
-				textTopScore.fontSize = '36px';
-				textTopScore.x = game.world.centerX - textTopScore.width/2;
-				textTopScore.y = textScore.y + title.height;
-
-				btnBack.inputEnabled = true;
-				btnBack.events.onInputDown.addOnce(function(){
-					GLOBALS.blockSpeed = GLOBALS.initialBlockSpeed;
-					game.state.start("boot");
-				});
-			};
-		}
 //////////////////////////////////游戏界面/////////////////////////////////////
 		var gameState = function(game){
 			var textTimer;
@@ -237,7 +187,14 @@
 			var gameBackground;
 
 			this.create=function(){
-				clickSound = this.sound.add('click');//音效
+				// 加载并播放背景音乐
+				bgm = game.add.audio('bgm'); // 假设音频资源已加载
+				bgm.loop = true; // 设置循环播放
+				bgm.volume = 0.3; // 设置音量（0.0 至 1.0）
+				bgm.play(); // 开始播放背景音乐
+
+				clickSound = game.sound.add('click');//点击音效
+				jumpSound = game.sound.add('jumpSound');//跳跃音效
 				topScore = localStorage.getItem("topScore")==null?0:localStorage.getItem("topScore");
 				game.physics.startSystem(Phaser.Physics.ARCADE);						//开启物理引擎
 				time_start_count = game.time.totalElapsedSeconds().toFixed(3);			//游戏之前的时间统计
@@ -248,7 +205,7 @@
 				area.events.onInputDown.add(function(){
 					if (player1.body.touching.down) {
 						player1.body.velocity.y = -875;//跳跃速度
-						clickSound.play();
+						jumpSound.play();
 					}
 					console.log(GLOBALS.blockSpeed);
 				});
@@ -321,6 +278,63 @@
 			}
 		}
 ////////////////////////////////////////////////////////////////////////////////////////
+//------------------------------结束界面------------------------------		
+		var gameoverState = function(game){
+			var score = 0;
+			var topScore=0;
+			this.create=function(){
+				// 停止并淡出背景音乐
+				if (bgm.isPlaying) {
+					bgm.fadeOut(50); // 参数1000代表淡出时间为1秒
+				}
+				var background = game.add.image(0,0,"background");
+				background.scale.setTo(windowSize,windowSize);
+				var title = game.add.image(0,0,"myScore");
+				title.scale.setTo(windowSize,windowSize);
+				title.x = game.world.centerX - title.width/2;
+				var l1 = game.add.sprite(0,0,"line1");//上面那条线
+				l1.y = title.y + title.height;
+				l1.scale.setTo(windowSize,windowSize);
+				var l2 = game.add.sprite(0,0,"line1");//下面那条线
+				l2.scale.setTo(windowSize,windowSize);
+				l2.y = game.world.height - title.height;
+				
+				//返回按钮
+				var btnBack = game.add.image(0,0,"button");
+				btnBack.frame = 1;
+				btnBack.scale.setTo(windowSize/2,windowSize/2);
+				btnBack.x = game.world.centerX / 1.75;
+				btnBack.y = l2.y + btnBack.height / 2;
+				var textBack = game.add.text(0,0,"返回",style);
+				textBack.scale.setTo(windowSize,windowSize);
+				textBack.font = 'pixel';
+				textBack.x = btnBack.x + (btnBack.width - textBack.width)/2;
+				textBack.y = btnBack.y + (btnBack.height - textBack.height)/2;
+
+				//最高得分
+				var topScore = localStorage.getItem("topScore")==null?0:localStorage.getItem("topScore");
+				score = localStorage.getItem("score")==null?0:localStorage.getItem("score");
+				var textScore = game.add.text(0,0,"本局 " + score + "秒");
+				textScore.scale.setTo(windowSize,windowSize);
+				textScore.font = 'pixel';
+				textScore.fontSize = '36px';
+				textScore.x = game.world.centerX - textScore.width / 2;
+				textScore.y = game.world.centerY - title.height;
+				var textTopScore = game.add.text(0,0,"最佳 " + topScore + "秒");
+				textTopScore.scale.setTo(windowSize,windowSize);
+				textTopScore.font = 'pixel';
+				textTopScore.fontSize = '36px';
+				textTopScore.x = game.world.centerX - textTopScore.width/2;
+				textTopScore.y = textScore.y + title.height;
+
+				btnBack.inputEnabled = true;
+				btnBack.events.onInputDown.addOnce(function(){
+					GLOBALS.blockSpeed = GLOBALS.initialBlockSpeed;
+					game.state.start("boot");
+				});
+			};
+		}
+
 		function Down(){
 			game.state.start('main');
 		}
