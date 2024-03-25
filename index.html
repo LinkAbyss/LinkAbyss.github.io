@@ -66,13 +66,16 @@
 				game.load.image('background','assets/background.jpg');//标题背景
 				game.load.image('help','assets/help.png');
 				game.load.image('area','assets/area.png');//游戏背景
+				game.load.image('midground','assets/midground.png');//中景
+				game.load.image('foreground','assets/foreground.png');//前景
 				game.load.image('title','assets/CutthRun.png');//标题
 				game.load.image('myScore','assets/myScore.png');
-				game.load.image('line1','assets/line1.png');
+				game.load.image('line1','assets/line3.png');
 				game.load.image('line2','assets/line2.png');
 				game.load.image('line3','assets/line3.png');
 				game.load.spritesheet('button',"assets/button.png",272,80);
-				game.load.image('block','assets/Robot.png');//障碍物
+				game.load.spritesheet('block1','assets/Robot1.png',28,24);//地面障碍物
+				game.load.spritesheet('block2',"assets/Robot2.png",24,24);//空中障碍物
 				game.load.spritesheet('player',"assets/Cutth.png",32,40);//每隔32/40切割精灵
 				game.load.spritesheet('wu',"assets/wu.png",123.5,100);
 				game.load.audio('click', "assets/clickSound.mp3");//点击音效
@@ -182,11 +185,17 @@
 			var block1_width=0;
 			var block1_height=0;
 			var block1;
+			var block2_width=0;
+			var block2_height=0;
+			var block2;
 			var score = 0;
 			var topScore=0;
 			var gameBackground;
+			var gameMidground;
+			var gameForeground;
 
 			this.create=function(){
+				var groundHeight = game.world.height * (3 / 4)//地面位置
 				// 加载并播放背景音乐
 				bgm = game.add.audio('bgm'); // 假设音频资源已加载
 				bgm.loop = true; // 设置循环播放
@@ -198,13 +207,14 @@
 				topScore = localStorage.getItem("topScore")==null?0:localStorage.getItem("topScore");
 				game.physics.startSystem(Phaser.Physics.ARCADE);						//开启物理引擎
 				time_start_count = game.time.totalElapsedSeconds().toFixed(3);			//游戏之前的时间统计
-				var area = game.add.image(0,0,"area");//游戏区域
+				var area = game.add.image(0,0,"area");//游戏区域-背景
 				area.scale.setTo(windowSize,windowSize*2);	
 				area.inputEnabled = true;
 				area.input.boundsRect = new Phaser.Rectangle(0, 0, area.width * area.scale.x, area.height * area.scale.y);
+				//点击时
 				area.events.onInputDown.add(function(){
 					if (player1.body.touching.down) {
-						player1.body.velocity.y = -875;//跳跃速度
+						player1.body.velocity.y = -900;//跳跃速度
 						jumpSound.play();
 					}
 					console.log(GLOBALS.blockSpeed);
@@ -213,6 +223,16 @@
 				//游戏背景
 				gameBackground = game.add.tileSprite(0, 0, game.width, game.height, 'area');
 				gameBackground.scale.setTo(windowSize,windowSize);
+				gameBackground.z = 1;
+				//游戏中景
+				gameMidground = game.add.tileSprite(0, 0, game.width, game.height, 'midground');
+				gameMidground.scale.setTo(windowSize,windowSize);
+				//gameMidground.y = groundHeight - gameMidground.height;
+				gameMidground.z = 2;
+				//游戏前景
+				gameForeground = game.add.tileSprite(0, 0, game.width, game.height, 'foreground');
+				gameForeground.scale.setTo(windowSize,windowSize);
+				gameForeground.z = 3;
 
 				//实时显示游戏运行时间
 				timer = game.time.totalElapsedSeconds().toFixed(3) - time_start_count;	//计算游戏运行时间
@@ -226,21 +246,34 @@
 				ground1.scale.setTo(windowSize, windowSize);				
 				game.physics.arcade.enable(ground1);
 				ground1.body.immovable = true;
-				ground1.y = game.world.height * (3 / 4) - ground1.height;
+				ground1.y = groundHeight + ground1.height/1.2;
 
 				player1 = game.add.sprite(-3,0,"player");
 				player1.scale.setTo(windowSize * 1.5, windowSize * 1.5);//玩家长宽均放大					
 				game.physics.arcade.enable(player1);
-				player1.body.gravity.y = 1500;//重力-越大下降速度越快
-				player1.animations.add('move', [0, 1, 2, 3], 10, true);//按精灵表播放动画帧，每s播放10帧，循环true
+				player1.body.gravity.y = 2000;//重力-越大下降速度越快
+				player1.animations.add('move', [0, 1, 2, 3], 10, true);//按精灵表播放动画帧，每秒播放10帧，循环true
 
-				block1 = game.add.sprite(0,0,"block");
+				//地面障碍物
+				block1 = game.add.sprite(0,0,"block1");
 				block1.scale.setTo(windowSize*1.5,windowSize*1.5);
 				game.physics.arcade.enable(block1);
+				block1.animations.add('block1Move',[0,1,2,3],10,true);//按精灵表播放动画帧，每秒播放10帧，循环true
 				block1_width = block1.width;
 				block1_height = block1.height;
 				block1.y = ground1.y - block1.height;
 				block1.x = game.rnd.between(game.world.centerX,game.world.width);
+
+				//空中障碍物
+				block2 = game.add.sprite(0,0,"block2");
+				block2.scale.setTo(windowSize*1.5,windowSize*1.5);
+				game.physics.arcade.enable(block2);
+				block2.animations.add('block2Move',[0,1,2,3],10,true);//按精灵表播放动画帧，每秒播放10帧，循环true
+				block2_width = block2.width;
+				block2_height = block2.height;
+				block2.y = -500;
+				block2.x = game.rnd.between(game.world.centerX,game.world.width) + 50;
+
 				// 创建一个每5秒(5000毫秒)触发一次的速度增加函数
 				var speedIncreaseTimer = game.time.events.loop(5000, updateBlockSpeed, this);
 			};
@@ -258,7 +291,15 @@
 					localStorage.setItem("score",score);
 					game.state.start("gameover");
 				});
+				game.physics.arcade.collide(player1, block2,function(){
+					score = timer.toFixed(3);
+					localStorage.setItem("topScore",Math.max(score,topScore));//储存比较最高分
+					localStorage.setItem("score",score);
+					game.state.start("gameover");
+				});
 				player1.animations.play('move');
+				block1.animations.play('block1Move');
+				block2.animations.play('block2Move');
 
 				textTimer.text = "";
 				timer = game.time.totalElapsedSeconds().toFixed(3) - time_start_count;
@@ -266,14 +307,32 @@
 				textTimer.scale.setTo(windowSize,windowSize);
 				textTimer.font = 'pixel';
 				textTimer.x = game.width - textTimer.width;
-				//障碍物移动
+				//地面障碍物移动
 				block1.x -= GLOBALS.blockSpeed * (game.time.physicsElapsedMS / 1000);// 使用 elapsed 时间可以确保不同设备帧率下的效果一致
 				if (block1.x < 0) {
-					block1.x = game.world.width;// 当 block1 移动到屏幕左侧边界之外时,将其重新定位到屏幕右侧边缘
+					//随机距离 当 block1 移动到屏幕左侧边界之外时,将其重新定位到屏幕右侧,具体位置视速度决定
+					var randomDistance1 = game.world.width * (Math.random() * (1 - 0.1) + 0.1);//[0.1,1)
+					block1.x = game.world.width + randomDistance1;// 
 					block1.y = ground1.y - block1.height;// 调整其垂直位置以保持在地面之上
 				}
-				//后景
+				//空中障碍物移动
+				block2.x -= GLOBALS.blockSpeed * (game.time.physicsElapsedMS / 1000);// 使用 elapsed 时间可以确保不同设备帧率下的效果一致
+				if (block2.x < 0) {
+					//随机距离 当 block2 移动到屏幕左侧边界之外时,将其重新定位到屏幕右侧,具体位置视速度决定,最大不超过0.3当前速度与屏幕宽之和的一半
+					var randomDistance2 = GLOBALS.blockSpeed * (Math.random() * (1.5-1) + 1);//[1,1.5)
+					console.log(randomDistance2);
+					if (randomDistance2 < ((game.world.width + 0.2 * GLOBALS.blockSpeed)/2)) {
+						block2.x = block1.x + randomDistance2;
+					} else {
+						block2.x = block1.x + (game.world.width + 0.2 * GLOBALS.blockSpeed)/2;
+					}
+					block2.y = ground1.y - block2.height - 200;// 调整其垂直位置以保持在地面之上
+				}
+
+				//背景
 				gameBackground.tilePosition.x -= 20 * (game.time.physicsElapsedMS / 1000);
+				gameMidground.tilePosition.x -= 40 * (game.time.physicsElapsedMS / 1000);
+				gameForeground.tilePosition.x -= 60 * (game.time.physicsElapsedMS / 1000);
 
 			}
 		}
