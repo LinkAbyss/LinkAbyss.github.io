@@ -39,8 +39,8 @@
 			fill: '#ffffff'
 		};
 		var GLOBALS = {
-			initialBlockSpeed: 250, // 初始速度值
-			blockSpeed: 250,
+			initialBlockSpeed: 300, // 初始速度值
+			blockSpeed: 300,
 		};
 
 		var time_start_count = 0;
@@ -108,7 +108,12 @@
 				var l2 = game.add.sprite(0,0,"line1");//下面那条线
 				l2.scale.setTo(windowSize,windowSize);
 				l2.y = game.world.height - title.height;
-				
+				var helpText = game.add.text(0 ,0,"制作：@无渊林 " +"\n" + "素材：@JDWasabi @ansimuz");
+				helpText.font = 'pixel';
+				helpText.fontSize = '56px';
+				helpText.x = game.world.centerX - helpText.width/2
+				helpText.y = l2.y - helpText.height
+
 				var btnStart = game.add.image(0,0,"button");
 				btnStart.scale.setTo(windowSize,windowSize);
 				btnStart.x = game.world.centerX - btnStart.width/2;
